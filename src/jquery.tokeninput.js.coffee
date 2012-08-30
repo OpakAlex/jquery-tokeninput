@@ -11,7 +11,6 @@
     selectedDropdownItem: "token-input-selected-dropdown-item"
     inputToken: "token-input-input-token"
     addToken: "token-input-add-token"
-    placeholder: 'placeholder'
 
   DEFAULT_SETTINGS =
     IsFilterSearch: false
@@ -36,7 +35,7 @@
     deleteText: "&times;"
     animateDropdown: true
     theme: null
-    placeholderText: ''
+    placeholderText: 'ew'
     disabled: "token-input-disabled"
     placeholder: "token-input-placeholder"
     resultsFormatter: (item) ->
@@ -439,9 +438,6 @@
       @input_val = undefined
       @ctrlPressed = false
       @input_box = $("<input type=\"text\"  autocomplete=\"off\">").css(outline: "none").attr("id", self.settings.idPrefix + self.input.id).attr('placeholder',self.settings.placeholderText).focus(->
-        if $(this).val() == self.settings.placeholderText
-          $(this).val('')
-          $(this).removeClass(self.settings.placeholder)
         if self.settings.tokenLimit is null or self.settings.tokenLimit isnt self.token_count
           self.blur = false
           self.show_dropdown_hint()
@@ -450,9 +446,6 @@
               self.blur = true
           ), 400
       ).blur(->
-        if  self.settings.placeholderText && !$(this).val() && !self.has_tokens()
-          $(this).val(self.settings.placeholderText)
-          $(this).addClass($(input).data("settings").classes.placeholder)
         setTimeout (->
           if self.blur
             self.hide_dropdown()
