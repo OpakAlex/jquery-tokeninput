@@ -11,6 +11,7 @@
     selectedDropdownItem: "token-input-selected-dropdown-item"
     inputToken: "token-input-input-token"
     addToken: "token-input-add-token"
+    placeholder: 'placeholder'
 
   DEFAULT_SETTINGS =
     IsFilterSearch: false
@@ -35,6 +36,9 @@
     deleteText: "&times;"
     animateDropdown: true
     theme: null
+    placeholderText: ''
+    disabled: "token-input-disabled"
+    placeholder: "token-input-placeholder"
     resultsFormatter: (item) ->
       "<li>" + item[@propertyToSearch] + "</li>"
 
@@ -434,7 +438,10 @@
       @timeout = undefined
       @input_val = undefined
       @ctrlPressed = false
-      @input_box = $("<input type=\"text\"  autocomplete=\"off\">").css(outline: "none").attr("id", self.settings.idPrefix + self.input.id).focus(->
+      @input_box = $("<input type=\"text\"  autocomplete=\"off\">").css(outline: "none").attr("id", self.settings.idPrefix + self.input.id).attr('placeholder',self.settings.placeholderText).focus(->
+        if $(this).val() == self.settings.placeholderText
+          $(this).val('')
+          $(this).removeClass(self.settings.placeholder)
         if self.settings.tokenLimit is null or self.settings.tokenLimit isnt self.token_count
           self.blur = false
           self.show_dropdown_hint()
@@ -443,12 +450,14 @@
               self.blur = true
           ), 400
       ).blur(->
+        if  self.settings.placeholderText && !$(this).val() && !self.has_tokens()
+          $(this).val(self.settings.placeholderText)
+          $(this).addClass($(input).data("settings").classes.placeholder)
         setTimeout (->
           if self.blur
             self.hide_dropdown()
             self.blur = true
         ), 400
-        $(this).data "tag", $(this).val()
         $(this).val ""
       ).bind("keyup keydown blur update", self.resize_input).keydown((event) ->
         self.previous_token = undefined
@@ -533,7 +542,8 @@
         li = $(event.target).closest("li")
         li.removeClass self.settings.classes.highlightedToken  if li and self.selected_token isnt this
       ).insertBefore(self.hidden_input)
-      self.input_token = $("<li />").addClass(self.settings.classes.inputToken).appendTo(self.token_list).append(self.input_box)
+      self.input_token = $("<li />").addClass(self.settings.classes.inputToken).appendTo(self.token_list)
+      $(self.input_token).append(self.input_box)
       self.dropdown = $("<div>").addClass(self.settings.classes.dropdown).appendTo("body").hide()
       self.input_resizer = $("<tester/>").insertAfter(self.input_box).css(
         position: "absolute"
@@ -583,23 +593,26 @@
       self.token_list.children("li").each ->
         self.delete_token $(this)  if $(this).children("input").length is 0
 
-      add: (item) ->
-        @add_token item
+    add: (item) ->
+      @add_token item
 
-      remove: (item) ->
-        self = @
-        @token_list.children("li").each ->
-          if $(this).children("input").length is 0
-            self.currToken = $(this).data("tokeninput")
-            match = true
-            for prop of item
-              if item[prop] isnt currToken[prop]
-                match = false
-                break
-            self.delete_token $(this)  if match
+    has_tokens: ->
+      !!@saved_tokens.length
 
-      getTokens: ->
-        self.saved_tokens
+    remove: (item) ->
+      self = @
+      @token_list.children("li").each ->
+        if $(this).children("input").length is 0
+          self.currToken = $(this).data("tokeninput")
+          match = true
+          for prop of item
+            if item[prop] isnt currToken[prop]
+              match = false
+              break
+          self.delete_token $(this)  if match
+
+    getTokens: ->
+      self.saved_tokens
 
   class window.$.TokenList.Cache
     constructor: (options) ->
