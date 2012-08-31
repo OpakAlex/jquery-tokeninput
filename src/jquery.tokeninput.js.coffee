@@ -35,7 +35,7 @@
     deleteText: "&times;"
     animateDropdown: true
     theme: null
-    placeholderText: 'ew'
+    placeholderText: ''
     disabled: "token-input-disabled"
     placeholder: "token-input-placeholder"
     resultsFormatter: (item) ->
